@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { FlatList, TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';  
 import SplashScreen from '/plimadtphacker/screens/SplashScreen';
 import HomeScreen  from '/plimadtphacker/screens/HomeScreen';
-import DetailScreen from '/plimadtphacker/screens/DetailScreen';
 import ProfileScreen from '/plimadtphacker/screens/ProfilScreen';
+import TeamCard from '/plimadtphacker/components/teamcard2';
 const CATEGORIES = [  
   { id: '1', name: 'Pantai' },  
   { id: '2', name: 'Candi' },  
@@ -172,12 +172,13 @@ export default function () {
   const [activeCategory, setActiveCategory] = useState('1'); // Default kategori
 
   // Filter data berdasarkan kategori aktif
+  
   const filteredData = DATA.filter((item) => item.category_id === activeCategory);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
-      <Navbar title="Recipe App" />
+      <Navbar title="Wisata App" />
 
       {/* Categories List */}
       <Section title="Explore Categories">
@@ -214,13 +215,15 @@ export default function () {
           data={filteredData}
           numColumns={2}
           renderItem={({ item }) => (
-            <View style={styles.recipeCard}>
-              <Text style={styles.recipeTitle}>{item.title}</Text>
-              {/* Correctly reference the image URL */}
-              <Image source={{ uri: item.image }} style={styles.recipeImage} />
-              <Text style={styles.recipeOverview}>{item.overview}</Text>
-            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('DetailScreen', { itemId: item.id })}>
+              <View style={styles.recipeCard}>
+                <Text style={styles.recipeTitle}>{item.title}</Text>
+                <Image source={{ uri: item.image }} style={styles.recipeImage} />
+                <Text style={styles.recipeOverview}>{item.overview}</Text>
+              </View>
+            </TouchableOpacity>
           )}
+          // ...
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.recipeList}
           showsVerticalScrollIndicator={false}
