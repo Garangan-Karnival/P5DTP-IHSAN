@@ -1,333 +1,162 @@
-import React, { useState } from 'react';
-import { FlatList, TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';  
-import SplashScreen from '/plimadtphacker/screens/SplashScreen';
-import HomeScreen  from '/plimadtphacker/screens/HomeScreen';
-import ProfileScreen from '/plimadtphacker/screens/ProfilScreen';
-import TeamCard from '/plimadtphacker/components/teamcard2';
-const CATEGORIES = [  
-  { id: '1', name: 'Pantai' },  
-  { id: '2', name: 'Candi' },  
-  { id: '3', name: 'Taman Nasional' }, 
-];  
+import React, { useState } from 'react'; // Import useState di sini
+import { StyleSheet, Text, View, ScrollView, Image, Button, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { DetailScreen } from '/plimadtphacker/screens/DetailScreen';
+import { HomeScreen } from '/plimadtphacker/screens/HomeScreen';
+import { ProfilScreen } from '/plimadtphacker/screens/ProfilScreen';
+import { SplashScreen } from '/plimadtphacker/screens/SplashScreen';
+import TeamCard from '/plimadtphacker/components/teamcard'
 
-const DATA = [    
-  {  
-    id: '1',  
-    category_id: '1',  
-    title: 'Pantai Kuta, Bali',
-    image: 'https://tse2.mm.bing.net/th?id=OIP.286SjggiH_IRc3IH4tenEQHaEy&pid=Api&P=0&h=180'  ,
-    overview: 'Pantai Kuta adalah salah satu ikon pariwisata Bali yang paling terkenal di dunia. Terletak di Kabupaten Badung, pantai ini menawarkan keindahan alam yang memukau, mulai dari pasir putih yang lembut, deburan ombak yang menenangkan, hingga pemandangan matahari terbenam yang spektakuler.',  
-  },  
-  {  
-    id: '2',  
-    category_id: '2',  
-    title: 'Candi Borobudur, Magelang',  
-    image: 'https://tse4.mm.bing.net/th?id=OIP.-i5GaebD094q7ObjUSnOvgHaEK&pid=Api&P=0&h=180',
-    overview: 'Candi Borobudur adalah candi Buddha terbesar di dunia dan merupakan salah satu situs warisan dunia UNESCO.',  
-  },  
-  {  
-    id: '3',  
-    category_id: '1',  
-    title: 'Pantai Nusa Dua',  
-    image: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSWOnSCirm3cvsHWL96_cmTDxRMAz_OWBI9476cMEizZESHNcOezoVrGOZfgqSh',
-    overview: 'Pantai Nusa Dua menawarkan suasana yang lebih tenang dan eksklusif dibandingkan Pantai Kuta. Dengan pasir putih yang lembut, air laut yang jernih, dan fasilitas mewah, pantai ini sering disebut sebagai "Bali-nya Bali".',  
-  },  
-  {  
-    id: '4',  
-    category_id: '3',  
-    title: 'Taman Nasional Komodo, Labuan Bajo',  
-    image: 'https://tse1.mm.bing.net/th?id=OIP.XcPjqZYgF6_a-JMqKVvfTAHaE_&pid=Api&P=0&h=180',
-    overview: 'Taman Nasional Komodo, Labuan Bajo adalah surga bagi para petualang dan pecinta alam. Terkenal dengan keberadaan komodo, kadal terbesar di dunia, taman nasional ini menawarkan pengalaman wisata yang tak terlupakan. Selain komodo, keindahan alam bawah lautnya yang menakjubkan, serta lanskap pulau-pulau eksotis menjadi daya tarik tersendiri.',  
-  },  
-  {  
-    id: '2',  
-    category_id: '1',  
-    title: 'Pantai Anse Source dArgent, Seychelles',  
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxIHJANWpn6430eg4eEJKmzyOY56QUJq3v3TfMIY_p4-FW0GXKumYeVPHx4EiE',
-    overview: 'Terkenal dengan batuan granit raksasa dan pasir putihnya.',  
-  },  
-  {  
-    id: '3',  
-    category_id: '1',  
-    title: 'Pantai Whitehaven, Australia',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRNFVaqVCmuAi4pD6bef4kvrrgs0hUt5jhNCN3e3J0H_44s4osOMVwXS9G5m5tW',
-    overview: 'Memiliki pasir silika yang sangat halus dan air laut berwarna biru toska yang jernih.',  
-  },  
-  {  
-    id: '4',  
-    category_id: '1',  
-    title: 'Pantai Pink, Bahamas',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT_ZI9LmUz_4WAEGCo5BT8BD8k3kXXtvKjbW-EsieSVT_EYQSZjM2FOg7BMGCzi',
-    overview: 'Unik dengan pasir berwarna merah muda akibat adanya organisme laut mikroskopis.',  
-  },  
-  {  
-    id: '5',  
-    category_id: '1',  
-    title: 'Pantai Reynisfjara, Islandia',  
-    image: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTbCOo7o-xH7zcYFl-9DNaXwc9SA6Fm79MOyNLaAijeGGDTAFGHxgMeL_lv7NQ7',
-    overview: 'Pantai berpasir hitam dengan formasi batuan basal yang dramatis.',  
-  },  
-  {  
-    id: '6',  
-    category_id: '1',  
-    title: 'Pantai Elafonisi, Kreta, Yunani',  
-    image: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSq6BdRaOmUcvZg7znPpvjjyxl8OxhAoG9jPkPqE66lIZi4BHi-wMK4S5PUBWGe',
-    overview: 'Pantai dengan pasir merah muda yang indah dan air laut dangkal.',  
-  },  
-  {  
-    id: '7',  
-    category_id: '1',  
-    title: 'Pantai Maya Bay, Thailand',  
-    image: 'https://tse1.mm.bing.net/th?id=OIP.XcPjqZYgF6_a-JMqKVvfTAHaE_&pid=Api&P=0&h=180',
-    overview: 'Taman Nasional Komodo, Labuan Bajo adalah surga bagi para petualang dan pecinta alam. Terkenal dengan keberadaan komodo, kadal terbesar di dunia, taman nasional ini menawarkan pengalaman wisata yang tak terlupakan. Selain komodo, keindahan alam bawah lautnya yang menakjubkan, serta lanskap pulau-pulau eksotis menjadi daya tarik tersendiri.',  
-  },  
-  {  
-    id: '8',  
-    category_id: '1',  
-    title: 'Pantai Barafundle Bay, Wales',  
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8mDViSNzv7lX7uWtsFT2AYpdR9w_78XRjd87Lnjbc0l9po8vtDtPcUmBKy97H',
-    overview: 'Pantai terpencil dengan pasir emas dan tebing hijau yang menjulang.',  
-  },  
-  {  
-    id: '9',  
-    category_id: '1',  
-    title: 'Pantai Navagio, Zakynthos, Yunani',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZKJRnpdEjYoiZGcQLiK_0dCibKVqaKn9jLSA0MyRR3-8wB-Zy8JhgFJMQCCjG',
-    overview: 'Pantai yang hanya bisa diakses dengan perahu, dengan kapal karam yang terdampar di pantainya.',  
-  },  
-  {  
-    id: '10',  
-    category_id: '1',  
-    title: 'Pantai Grace Bay, Turks and Caicos',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRbNix5J0zAalf9W0lX6idAigiMHQjttExyadLjY6xStSBEb22783GilxYJeBgi',
-    overview: 'Terkenal dengan air laut yang jernih dan pasir putih yang lembut.',  
-  },  
-  {  
-    id: '11',  
-    category_id: '1',  
-    title: 'Pantai Railay, Thailand',  
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6-vB6AwBZMRtKLJzLrmGtf0eN6rjrH8QfuN_y304_E-mUOzUuO48I34XAiDMd',
-    overview: 'Surga bagi para pemanjat tebing dan pecinta alam.',  
-  },  
-  {  
-    id: '12',  
-    category_id: '1',  
-    title: 'Pantai Tulum, Meksiko',  
-    image: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRLzS4NiR3dJKW7ySN-596HmRcaR4Gd4sw-paI8MN5NqupZgsT2XuqFzYbF6G3w',
-    overview: 'Pantai dengan reruntuhan Mayan kuno yang menghadap ke laut Karibia.',  
-  },  
-  {  
-    id: '13',  
-    category_id: '1',  
-    title: 'Pantai Bondi, Sydney, Australia',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR84FRs4FA-Jx8AxbLmFoo_2g-mEg9BtnVXkon4BQ_zWdI1B51v2lemt74aOQoR',
-    overview: 'Pantai yang sangat populer untuk berselancar dan menikmati suasana kota.',  
-  },  
-  {  
-    id: '14',  
-    category_id: '1',  
-    title: 'Pantai Nusa Dua, Bali',  
-    image: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSWOnSCirm3cvsHWL96_cmTDxRMAz_OWBI9476cMEizZESHNcOezoVrGOZfgqSh',
-    overview: 'Pantai mewah dengan resor-resor eksklusif.',  
-  },  
-  {  
-    id: '15',  
-    category_id: '1',  
-    title: 'Pantai Kelingking, Nusa Penida, Bali',  
-    image: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcT4t_Wp9sVHohwDcoEkyCae6BqYav2m8wqsBu-4j2b5SI6gdgwcfWSIZ_rtVHdB',
-    overview: 'Terkenal dengan bentuk batuannya yang unik menyerupai T-Rex.',  
-  },  
-  {  
-    id: '16',  
-    category_id: '1',  
-    title: 'Pantai Gili Trawangan, Lombok',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRd8wtgx-IdCn_kZ-TmqI1iW1YegpNPGzL-Tuvijcc6JejLdgxhuicycUaE2quX',
-    overview: 'Pulau kecil dengan pantai pasir putih dan kehidupan malam yang meriah.',  
-  },  
-  {  
-    id: '17',  
-    category_id: '1',  
-    title: 'Pantai Pink, Komodo, Indonesia',  
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-watsTjYzudqtuL7bCom-XFrCuBoRC5qE2Pz43sdWFsAL_g_27GSvgPNw9Y90',
-    overview: 'Selain terkenal dengan komodonya, Taman Nasional Komodo juga memiliki pantai dengan pasir berwarna pink yang unik. Warna pink ini berasal dari pecahan karang merah muda yang tercampur dengan pasir putih.',  
-  },  
-  {  
-    id: '18',  
-    category_id: '1',  
-    title: 'Pantai Navagio, Zakynthos, Yunani',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZKJRnpdEjYoiZGcQLiK_0dCibKVqaKn9jLSA0MyRR3-8wB-Zy8JhgFJMQCCjG',
-    overview: 'Terkenal dengan kapal karam yang terdampar di pantainya, Pantai Navagio menawarkan pemandangan dramatis dengan tebing-tebing tinggi yang mengelilinginya.',  
-  },  
-  {  
-    id: '19',  
-    category_id: '1',  
-    title: 'Pantai Elafonisi, Kreta, Yunani',  
-    image: 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQv6K51Qt56nGWKhUroeyUz_k1R-TJI3loirPttfp-hVcEMi6MHZIYbHrIu318G',
-    overview: 'Pantai Elafonisi memiliki pasir berwarna pink yang sangat lembut dan air laut yang jernih. Suasananya sangat tenang dan cocok untuk bersantai.',  
-  },  
-];  
+const Wisata = () => {
+  const navigation = useNavigation(); // Sekarang useNavigation sudah didefinisikan
+  console.log("1. Objek navigation di Wisata:", navigation);
 
-export default function () {
-  const [activeCategory, setActiveCategory] = useState('1'); // Default kategori
+  const [selectedCategory, setSelectedCategory] = useState('Pantai');
+  console.log("2. selectedCategory:", selectedCategory);
 
-  // Filter data berdasarkan kategori aktif
-  
-  const filteredData = DATA.filter((item) => item.category_id === activeCategory);
+  const pantaiData = [
+  { title: "Pantai Kuta, Bali", description: "Ikon pariwisata Bali yang terkenal dengan ombaknya yang cocok untuk berselancar, matahari terbenam yang indah, dan kehidupan malam yang ramai.", imageUrl: "https://tse2.mm.bing.net/th?id=OIP.286SjggiH_IRc3IH4tenEQHaEy&pid=Api&P=0&h=180" },
+  { title: "Pantai Sanur, Bali", description: "Pantai yang tenang dengan suasana yang lebih santai, cocok untuk keluarga dan menikmati matahari terbit yang memukau.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.igVLTVJ4UDN7K_OQpir4sQHaFV&pid=Api&P=0&h=180" },
+  { title: "Pantai Tanjung Keluang, Kalbar", description: "Dikenal dengan formasi batu granit raksasa dan pasir putihnya yang halus, menawarkan pemandangan yang unik dan mempesona.", imageUrl: "https://tse2.mm.bing.net/th?id=OIP.lvJwIvdaM9K4NnjB3Xe6sQHaE7&pid=Api&P=0&h=180" },
+  { title: "Pantai Losari, Makassar", description: "Ikon kota Makassar yang terkenal dengan pemandangan matahari terbenamnya dan warung-warung makan di tepi pantai.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.Bl4A0ZeUE-GMhXcg9QSfKQHaE8&pid=Api&P=0&h=180" },
+  { title: "Pantai Parangtritis, Yogyakarta", description: "Pantai selatan yang melegenda dengan mitos Ratu Kidul, ombaknya yang besar, dan gumuk pasir yang menawan.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.Ta1P8oHm902m-EVR6yw79gHaFV&pid=Api&P=0&h=180" },
+  { title: "Pantai Senggigi, Lombok", description: "Pantai yang indah dengan garis pantai yang panjang, pasir putih, dan pemandangan perbukitan yang hijau.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.RIaeX6Gk0g7tH8aVZ2PTLwHaFj&pid=Api&P=0&h=180" },
+  { title: "Pantai Pink, Lombok", description: "Pantai unik dengan pasir berwarna merah muda yang disebabkan oleh serpihan karang, menawarkan pemandangan yang sangat instagramable.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.yOJmKbMOqSAzu0ryUh2XagHaE9&pid=Api&P=0&h=180" },
+  { title: "Pantai Ora, Maluku", description: "Surga tersembunyi di Maluku dengan air laut yang jernih, terumbu karang yang indah, dan suasana yang tenang.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.ldm2kpEvSWDNqgGQTZDRewHaE6&pid=Api&P=0&h=180" },
+  { title: "Pantai Nihiwatu, Sumba", description: "Pantai eksklusif di Sumba yang terkenal dengan ombaknya yang menantang bagi para peselancar profesional dan resort mewah.", imageUrl: "https://tse2.mm.bing.net/th?id=OIP.jCpX5E4WSar-7xItbHNcegHaFT&pid=Api&P=0&h=180" },
+  { title: "Pantai Balangan, Bali", description: "Spot surfing yang populer di Bali dengan tebing-tebing yang indah dan pemandangan matahari terbenam yang spektakuler.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.DPwY56t61ALaf_5LGHFzQgHaE7&pid=Api&P=0&h=180" },
+  { title: "Pantai Jimbaran, Bali", description: "Dikenal dengan hidangan seafood segar yang disajikan di restoran-restoran tepi pantai saat matahari terbenam.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.DPwY56t61ALaf_5LGHFzQgHaE7&pid=Api&P=0&h=180" }, // (Duplikat gambar, perlu diganti jika ada gambar lain)
+  { title: "Pantai Lovina, Bali", description: "Pantai yang tenang di Bali Utara yang terkenal dengan atraksi lumba-lumba di pagi hari.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.gzyCE5FG8_gbDdaAuOMJUwHaEc&pid=Api&P=0&h=180" },
+  { title: "Pantai Dreamland, Bali", description: "Pantai yang indah dengan pasir putih, ombak yang cocok untuk berselancar, dan tebing-tebing karang yang dramatis.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP._4OKYra93WGRj6KBXHc5xQHaE7&pid=Api&P=0&h=180" },
+  { title: "Pantai Padang Padang, Bali", description: "Dikenal sebagai lokasi syuting film 'Eat Pray Love', pantai kecil yang tersembunyi di antara tebing-tebing karang.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.Mw2WA5jXhBWZr_SG0IEvqgHaFj&pid=Api&P=0&h=180" },
+  { title: "Pantai Tanjung Aan, Lombok", description: "Pantai dengan pasir putih yang lembut seperti merica, air laut yang jernih, dan bukit-bukit yang mengelilingi pantai.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.jI-KE4y-2iYCTRWAL6uXRgHaE8&pid=Api&P=0&h=180" },
+  { title: "Pantai Koka, Flores", description: "Pantai dengan formasi batu karang yang unik dan pemandangan yang menakjubkan, terdiri dari dua teluk yang dipisahkan oleh tanjung.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.TiJio3RebuAL91fbn7kYKwHaEK&pid=Api&P=0&h=180" },
+  { title: "Pantai Watu Karung, Pacitan", description: "Surga bagi para peselancar dengan ombaknya yang menantang dan pemandangan alam yang indah.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.IMYL05Zbgpo6odpABRZCLwHaE3&pid=Api&P=0&h=180" },
+  { title: "Pantai Wediombo, Yogyakarta", description: "Pantai dengan laguna alami yang indah, cocok untuk berenang dan bersantai menikmati pemandangan laut.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.XZ5w36_Xk-XofOjBaB9SgQHaFX&pid=Api&P=0&h=180" },
+  { title: "Pantai Tiga Warna, Malang", description: "Pantai yang unik dengan tiga gradasi warna air laut yang disebabkan oleh perbedaan kedalaman dan biota laut.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.osS9dpJ7L3apj3_jFVMNtQHaEK&pid=Api&P=0&h=180" },
+  { title: "Pantai Pulau Merah, Banyuwangi", description: "Pantai dengan ciri khas bukit kecil berwarna merah yang terletak di tepi pantai, menawarkan pemandangan yang eksotis.", imageUrl: "https://tse3.mm.bing.net/th?id=OIP.XMJo0I6VxjfmVbQqtQH_1wHaE8&pid=Api&P=0&h=180" },
+  ];
+
+
+  const wisataData = {
+    Pantai: pantaiData,
+    Candi: [
+      { title: "Candi Borobudur", description: "Candi Buddha terbesar di dunia.", imageUrl: "https://tse2.mm.bing.net/th?id=OIP.PCnieYiHsRUqSLu_9XnNaQHaE1&pid=Api&P=0&h=180" },
+      { title: "Candi Prambanan", description: "Kompleks candi Hindu terbesar di Indonesia.", imageUrl: "https://tse2.mm.bing.net/th?id=OIP.4fht7zbQFJAdyLLhbWg2FwHaFS&pid=Api&P=0&h=180" },
+    ],
+    "Taman Nasional": [
+      { title: "Taman Nasional Komodo", description: "Habitat asli Komodo.", imageUrl: "https://tse4.mm.bing.net/th?id=OIP.MbHwVTSfWPpgEzFOjvE2BAHaE8&pid=Api&P=0&h=180" },
+      { title: "Taman Nasional Bromo Tengger Semeru", description: "Terkenal dengan Gunung Bromo dan pemandangan sunrise-nya.", imageUrl: "https://tse1.mm.bing.net/th?id=OIP.TrjvIurDJiJrmTkjMHZqxgHaE8&pid=Api&P=0&h=180" },
+    ],
+  };
+
+  const handleCategoryPress = (category) => {
+    setSelectedCategory(category);
+  };
+
+  const displayedWisata = wisataData[selectedCategory] || [];
+  console.log("3. displayedWisata:", displayedWisata);
+
+  const handleImagePress = (wisata) => {
+    console.log("4. handleImagePress dipanggil dengan data:", wisata);
+    console.log("5. Navigasi ke Detail dengan:", { wisataData: wisata });    
+    navigation.navigate('Detail', { wisataData: wisata });
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Navbar */}
-      <Navbar title="Wisata App" />
-
-      {/* Categories List */}
-      <Section title="Explore Categories">
-        <FlatList
-          data={CATEGORIES}
-          horizontal
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.categoryButton,
-                activeCategory === item.id && styles.activeCategoryButton, // Tambahkan gaya aktif
-              ]}
-              onPress={() => setActiveCategory(item.id)} // Ubah kategori aktif
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  activeCategory === item.id && styles.activeCategoryText, // Tambahkan gaya teks aktif
-                ]}
-              >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-        />
-      </Section>
-
-      {/* Recipes List */}
-      <Section title="Delicious Recipes">
-        {filteredData.length > 0 ? (
-          <FlatList
-          data={filteredData}
-          numColumns={2}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('DetailScreen', { itemId: item.id })}>
-              <View style={styles.recipeCard}>
-                <Text style={styles.recipeTitle}>{item.title}</Text>
-                <Image source={{ uri: item.image }} style={styles.recipeImage} />
-                <Text style={styles.recipeOverview}>{item.overview}</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-          // ...
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.recipeList}
-          showsVerticalScrollIndicator={false}
-          style={{ flex: 1, minHeight: 500 }}
-        />        
-        ) : (
-          <Text style={styles.noRecipesText}>No recipes available for this category!</Text>
-        )}
-      </Section>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <View style={styles.appBar}>
+        <Text style={styles.appBarTitle}>Wisata App</Text>
+      </View>
+      <ScrollView style={styles.content}>
+        <Text style={styles.sectionTitle}>Explore Categories</Text>
+        <View style={styles.categoryButtons}>
+          <Button
+            title="Pantai"
+            color={selectedCategory === 'Pantai' ? 'blue' : 'grey'}
+            onPress={() => handleCategoryPress('Pantai')}
+          />
+          <Button
+            title="Candi"
+            color={selectedCategory === 'Candi' ? 'blue' : 'grey'}
+            onPress={() => handleCategoryPress('Candi')}
+          />
+          <Button
+            title="Taman Nasional"
+            color={selectedCategory === 'Taman Nasional' ? 'blue' : 'grey'}
+            onPress={() => handleCategoryPress('Taman Nasional')}
+          />
+        </View>
+        <Text style={styles.sectionTitle}>Macam-macam wisata</Text>
+        {displayedWisata.map((item) => (
+          <WisataCard key={item.title} {...item} onPress={() => handleImagePress(item)} />
+        ))}
+      </ScrollView>
+    </View>
   );
-}
+};
 
-const Navbar = ({ title }) => (
-  <View style={styles.navbar}>
-    <Text style={styles.navbarTitle}>{title}</Text>
-  </View>
-);
-
-const Section = ({ title, children }) => (
-  <View style={styles.section}>
-    <Text style={styles.sectionTitle}>{title}</Text>
-    {children}
-  </View>
+const WisataCard = ({ title, description, imageUrl, onPress }) => ( // Terima props title, description, dan imageUrl
+  <TouchableOpacity style={styles.card} onPress={onPress}>
+    <Image source={{ uri: imageUrl }} style={styles.cardImage} /> {/* Gunakan imageUrl */}
+    <View style={styles.textContainer}>
+      <Text style={styles.cardTitle}>{title}</Text> {/* Gunakan title */}
+      {description && <Text style={styles.cardDescription}>{description}</Text>} {/* Gunakan description */}
+    </View>
+  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
-  navbar: {
-    backgroundColor: '#4A90E2',
+  appBar: {
+    backgroundColor: 'red',
     padding: 16,
-    alignItems: 'center',
-    borderRadius: 10,
-    marginBottom: 16,
   },
-  recipeImage: {
-    width: '100%', // Make the image take full width
-    height: 100, // Set a fixed height for the image
-    borderRadius: 10, // Optional: Add rounded corners
-    marginBottom: 8, // Optional: Add some space between image and text
+  appBarTitle: {
+      color: 'white',
+      fontSize: 20,
+      fontWeight: 'bold',
   },
-  navbarTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  section: {
-    marginBottom: 16,
-    paddingHorizontal: 16,
+  content: {
+    padding: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  categoryButton: {
-    margin: 8,
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    elevation: 4,
+  categoryButtons: {
+      flexDirection: 'row',
+      marginBottom: 24,
   },
-  activeCategoryButton: {
-    backgroundColor: '#4A90E2',
+  card: {
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
-  categoryText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#333',
+  cardImage: {
+    width: '100%',
+    height: 200,
   },
-  activeCategoryText: {
-    color: '#fff',
-  },
-  recipeCard: {
-    flex: 1,
-    margin: 8,
+  cardContent: {
     padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
   },
-  recipeTitle: {
+  cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
   },
-  recipeOverview: {
-    fontSize: 14,
-    color: '#666',
-  },
-  recipeList: {
-    paddingBottom: 16,
-  },
-  noRecipesText: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#888',
-    },
+  bottomNavigationBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      padding: 10,
+      borderTopWidth: 1,
+      borderTopColor: '#ddd',
+  }
 });
+
+export default Wisata;
